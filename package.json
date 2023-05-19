@@ -2,9 +2,12 @@
   "name": "projeto17-shortly",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/app.js",
+    "dev": "npx nodemon ./src/app.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,12 @@
   "bugs": {
     "url": "https://github.com/AnaLauraFFerraz/Shortly/issues"
   },
-  "homepage": "https://github.com/AnaLauraFFerraz/Shortly#readme"
+  "homepage": "https://github.com/AnaLauraFFerraz/Shortly#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "joi": "^17.9.2",
+    "pg": "^8.11.0"
+  }
 }
