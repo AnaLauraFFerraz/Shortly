@@ -34,6 +34,22 @@ export async function getUrl(req, res) {
     }
 }
 
+export async function redirectShortUrl(req, res) {
+    const { shortUrl } = req.params
+    try {
+        const { rowCount, rows: [data, ..._] } = await db.query(`
+            UPDATE urls
+            set "visitCount" = "visitCount" + 1
+            WHERE "shortUrl" = $1
+            RETURNING url;
+            `, [shortUrl])
+        if (!rowCount) return res.sendStatus(404)
+        else return res.redirect(data.url)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+
+}
 
 export async function deleteUrl(req, res) {
     const { id } = req.params
