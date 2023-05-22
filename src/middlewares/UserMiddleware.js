@@ -1,4 +1,3 @@
-import { getUrlsByUser } from "../repositories/repository.js";
 import bcrypt from "bcrypt";
 
 export async function validateSignup(req, res, next) {
@@ -32,3 +31,32 @@ export async function validateSignin(req, res, next) {
   }
 }
 
+export async function getUrlsByUser(req, res, next) {
+  const { userId } = res.locals.session;
+
+  const urls = await db.query(`
+    SELECT
+    json_build_object(
+      'id', "shortLinks"."userId",
+      'name', users.name,
+      'visitCount', SUM("shortLinks"."visitCount"),
+      'shortenedUrls', json_agg(
+        json_build_object(
+          'id', "shortLinks".id,
+          'shortUrl', "shortLinks"."shortUrl",
+          'url', "shortLinks".url,
+          'visitCount', "shortLinks"."visitCount"
+        )
+      )
+    ) AS user
+    FROM "shortLinks"
+    JOIN users ON users.id = "shortLinks"."userId"
+    WHERE "shortLinks"."userId" = $1
+    GROUP BY "shortLinks"."userId", users.name
+    ORDER BY SUM("shortLinks"."visitCount");`
+      , [userId]);
+
+  res.locals.urls = urls.rows;
+  
+  next();
+}
