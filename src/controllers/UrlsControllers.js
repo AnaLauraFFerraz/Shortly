@@ -18,3 +18,18 @@ export async function shortenUrl(req, res) {
     }
 }
 
+export async function getUrl(req, res) {
+    const { id } = req.params
+
+    try {
+        const { rowCount, rows: [data, ..._] } = await db.query(`
+            SELECT id, "shortUrl", url
+            FROM urls
+            WHERE id = $1
+            `, [id])
+        if (!rowCount) return res.sendStatus(404)
+        else return res.send(data)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
