@@ -1,4 +1,4 @@
-import db from "../config/db.js"
+import db from "../config/database.js"
 import bcrypt from 'bcrypt'
 import { v4 as uuidV4 } from "uuid"
 

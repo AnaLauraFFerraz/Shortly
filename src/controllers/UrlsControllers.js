@@ -1,10 +1,10 @@
-import db from "../config/db.js"
+import db from "../config/database.js"
 import { nanoid } from "nanoid"
 
 export async function shortenUrl(req, res) {
     const { url } = req.body
     const { userId } = res.locals.session
-    const shortUrl = nanoid(8)
+    const shortUrl = nanoid()
 
     try {
         await db.query(`
@@ -18,47 +18,43 @@ export async function shortenUrl(req, res) {
     }
 }
 
-export async function getUrl(req, res) {
-    const { id } = req.params
+export async function getUrlById(req, res) {
+    const { id, shortUrl, url, visitCount } = res.locals.url;
 
     try {
-        const { rowCount, rows: [data, ..._] } = await db.query(`
-            SELECT id, "shortUrl", url
-            FROM urls
-            WHERE id = $1
-            `, [id])
-        if (!rowCount) return res.sendStatus(404)
-        else return res.send(data)
+        res.send({ id, shortUrl, url, visitCount });
     } catch (error) {
         res.status(500).send(error)
     }
 }
 
 export async function redirectShortUrl(req, res) {
-    const { shortUrl } = req.params
+    const { visitCount, shortUrl, url } = res.locals.url;
     try {
-        const { rowCount, rows: [data, ..._] } = await db.query(`
-            UPDATE urls
-            set "visitCount" = "visitCount" + 1
-            WHERE "shortUrl" = $1
-            RETURNING url;
-            `, [shortUrl])
-        if (!rowCount) return res.sendStatus(404)
-        else return res.redirect(data.url)
+        await db.query(`
+            UPDATE "shortLinks" 
+            SET "visitCount" = $1 
+            WHERE "shortUrl" = $2;`, 
+            [visitCount + 1, shortUrl]);
+        
+        res.redirect(url);
     } catch (error) {
         res.status(500).send(error)
     }
-
 }
 
 export async function deleteUrl(req, res) {
-    const { id } = req.params
+    const shortLinkOwner = res.locals.session;
+    const { id, userId } = res.locals.url;
 
     try {
+        if (shortLinkOwner.userId !== userId) return res.status(401).send({ message: "Sem autorização para deletar URL" });
+
         await db.query(`
         DELETE FROM urls
         WHERE id = $1;
         `, [id])
+
         res.sendStatus(204)
     } catch (error) {
         res.status(500).send(error)

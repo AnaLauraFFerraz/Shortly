@@ -1,14 +1,15 @@
 import { Router } from "express";
-import { deleteUrl, getUrl, redirectShortUrl, shortenUrl } from "../controllers/urls.controller.js";
-import { authValidation, urlOwnerValidation } from "../middlewares/auth.middleware.js";
-import { validateSchema } from "../middlewares/schema.middleware.js";
-import { urlSchema } from "../schemas/url.schema.js";
+import { urlSchema } from "../schemas/UrlSchema.js";
+import { validateSchema } from "../middlewares/validateSchema.js";
+import { authValidation, urlOwnerValidation } from "../middlewares/AuthMiddleware.js";
+import { deleteUrl, getUrlById, redirectShortUrl, shortenUrl } from "../controllers/UrlsControllers.js";
+import { validateReturnUrl, validateReturnShortUrl } from "../middlewares/UrlMiddleware.js";
 
 const urlsRouter = Router()
 
 urlsRouter.post("/urls/shorten", authValidation, validateSchema(urlSchema), shortenUrl)
-urlsRouter.get("/urls/:id", getUrl)
-urlsRouter.get("/urls/open/:shortUrl", redirectShortUrl)
-urlsRouter.delete("/urls/:id", authValidation, urlOwnerValidation, deleteUrl)
+urlsRouter.get("/urls/:id", validateReturnUrl, getUrlById)
+urlsRouter.get("/urls/open/:shortUrl", validateReturnShortUrl, redirectShortUrl)
+urlsRouter.delete("/urls/:id", authValidation, validateReturnUrl, deleteUrl)
 
 export default urlsRouter

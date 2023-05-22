@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getUserData, getUsersRanking } from "../controllers/users.controller.js";
-import { authValidation } from "../middlewares/auth.middleware.js";
+import { authValidation } from "../middlewares/AuthMiddleware";
 import { getUrlsByUser } from "../middlewares/UserMiddleware.js";
+import { getUserData, getUsersRanking } from "../controllers/UsersConrollers";
 
 const usersRouter = Router()
 

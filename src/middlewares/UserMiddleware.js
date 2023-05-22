@@ -1,3 +1,4 @@
+import db from "../config/database.js"
 import bcrypt from "bcrypt";
 
 export async function validateSignup(req, res, next) {
@@ -57,6 +58,6 @@ export async function getUrlsByUser(req, res, next) {
       , [userId]);
 
   res.locals.urls = urls.rows;
-  
+
   next();
 }
