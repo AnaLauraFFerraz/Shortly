@@ -32,6 +32,17 @@ export async function getUserData(_, res) {
     }
 }
 
+// export const getUserData = async (req, res) => {
+//     const user = await db.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+//     const urls = await db.query('SELECT * FROM shortLinks WHERE userId = $1', [req.user.id]);
+//     const visitCount = urls.rows.reduce((acc, url) => acc + url.visitCount, 0);
+//     res.json({
+//       ...user.rows[0],
+//       visitCount,
+//       shortenedUrls: urls.rows,
+//     });
+//   };
+
 
 export async function getUsersRanking(_, res) {
     try {
@@ -55,3 +66,15 @@ export async function getUsersRanking(_, res) {
         res.status(500).send(error)
     }
 }
+
+// export const getUsersRanking = async (req, res) => {
+//     const users = await db.query(`
+//       SELECT users.id, users.name, COUNT(shortLinks.id) AS linksCount, SUM(shortLinks.visitCount) AS visitCount
+//       FROM users
+//       LEFT JOIN shortLinks ON users.id = shortLinks.userId
+//       GROUP BY users.id
+//       ORDER BY visitCount DESC, linksCount DESC
+//       LIMIT 10
+//     `);
+//     res.json(users.rows);
+//   };
