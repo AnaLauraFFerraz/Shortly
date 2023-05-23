@@ -20,7 +20,6 @@ export async function getUsersRanking(_, res) {
             ORDER BY "visitCount" DESC
             LIMIT 10;
         `)
-        console.log(ranking)
         res.send(ranking)
 
     } catch (err) {
