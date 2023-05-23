@@ -13,21 +13,17 @@ export async function getUserData(_, res) {
 export async function getUsersRanking(_, res) {
     try {
         const { rows: ranking } = await db.query(`
-        SELECT 
-	        users.id as "id",
-	        users.name as "name",
-	        COUNT(urls.*) as "linksCount",
-	        COALESCE(SUM(urls."visitCount"),0) as "visitCount" 
-	    FROM urls
-	    RIGHT JOIN users
-	    	ON users.id = urls."userId"
-	    group by  users.id
-	    order by "visitCount" DESC
-	    limit 10;
+            SELECT "userId" AS id, users.name AS name, count(*) AS "linksCount", SUM("shortLinks"."visitCount") AS "visitCount"
+            FROM "shortLinks"
+            LEFT JOIN users ON users.id = "shortLinks"."userId"
+            GROUP BY "userId", users.name
+            ORDER BY "visitCount" DESC
+            LIMIT 10;
         `)
+        console.log(ranking)
         res.send(ranking)
 
-    } catch (error) {
-        res.status(500).send(error)
+    } catch (err) {
+        res.status(500).send(err.message)
     }
 }
