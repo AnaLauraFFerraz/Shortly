@@ -3,46 +3,26 @@ import { db } from "../config/database.js"
 export async function getUserData(_, res) {
     const { userId } = res.locals.session
     try {
-        const { rowCount, rows: [data, ..._] } = await db.query(`
-        SELECT
-        json_build_object(
-            'id' , users.id,
-            'name' , users.name,
-            'visitCount', SUM(urls."visitCount"),
-            'shortenedUrls', array_agg(
-                                        json_build_object(
-                                        'id',urls.id, 
-                                        'shortUrl',	urls."shortUrl", 
-                                        'url', urls.url,
-                                        'visitCount',	urls."visitCount"
-                                        ) order by urls.id ASC
-									  )
-            ) 
-        FROM urls
-        JOIN users
-        ON users.id = urls."userId"
-        WHERE users.id = $1
-        group by  users.id;
-        `, [userId])
-        if (rowCount) res.send(data.json_build_object)
-        else res.send({})
-
+        const { rows: urls } = await db.query(`
+            SELECT users.id, users.name, SUM("shortLinks"."visitCount") AS "visitCount", JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'id', "shortLinks".id,
+              'shortUrl', "shortLinks"."shortUrl",
+              'url', "shortLinks".url,
+              'visitCount', "shortLinks"."visitCount"
+            )) AS "shortenedUrls"
+            FROM users
+            JOIN "shortLinks" ON "shortLinks"."userId" = users.id
+            WHERE users.id = $1
+            GROUP BY users.id;`,
+            [userId],
+          );
+        
+        res.send(urls[0])
     } catch (error) {
         res.status(500).send(error)
     }
 }
-
-// export const getUserData = async (req, res) => {
-//     const user = await db.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-//     const urls = await db.query('SELECT * FROM shortLinks WHERE userId = $1', [req.user.id]);
-//     const visitCount = urls.rows.reduce((acc, url) => acc + url.visitCount, 0);
-//     res.json({
-//       ...user.rows[0],
-//       visitCount,
-//       shortenedUrls: urls.rows,
-//     });
-//   };
-
 
 export async function getUsersRanking(_, res) {
     try {
