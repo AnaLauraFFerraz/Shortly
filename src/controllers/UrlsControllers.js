@@ -51,9 +51,9 @@ export async function deleteUrl(req, res) {
         if (shortLinkOwner.userId !== userId) return res.status(401).send({ message: "Sem autorização para deletar URL" });
 
         await db.query(`
-        DELETE FROM urls
-        WHERE id = $1;
-        `, [id])
+            DELETE FROM "shortLinks"
+            WHERE id = $1;
+            `, [id])
 
         res.sendStatus(204)
     } catch (error) {

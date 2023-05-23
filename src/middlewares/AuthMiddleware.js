@@ -22,12 +22,11 @@ export async function urlOwnerValidation(req, res, next) {
   const { id } = req.params
 
   try {
-    const { rowCount, rows: [ownerId, ..._] } = await db.query(`SELECT "userId" FROM urls WHERE id = $1;`, [id])
-    if (!rowCount) return res.status(404).send("Url doesn't exists")
-    if (ownerId.userId !== userId) return res.status(401).send("URL not owned by user")
+    const { rowCount, rows: [ownerId, ..._] } = await db.query(`SELECT "userId" FROM shortLinks WHERE id = $1;`, [id])
+    if (!rowCount) return res.status(404).send("URL não existe")
+    if (ownerId.userId !== userId) return res.status(401).send("URL não pertence a esse usuário")
 
     next()
-
   } catch (error) {
     res.status(500).send(error)
   }
