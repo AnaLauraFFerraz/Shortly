@@ -26,7 +26,7 @@ export async function getUserData(_, res) {
 
 export async function getUsersRanking(_, res) {
     try {
-        const { rowCount, rows: data } = await db.query(`
+        const { rows: ranking } = await db.query(`
         SELECT 
 	        users.id as "id",
 	        users.name as "name",
@@ -39,22 +39,9 @@ export async function getUsersRanking(_, res) {
 	    order by "visitCount" DESC
 	    limit 10;
         `)
-        if (rowCount) res.send(data)
-        else res.send({})
+        res.send(ranking)
 
     } catch (error) {
         res.status(500).send(error)
     }
 }
-
-// export const getUsersRanking = async (req, res) => {
-//     const users = await db.query(`
-//       SELECT users.id, users.name, COUNT(shortLinks.id) AS linksCount, SUM(shortLinks.visitCount) AS visitCount
-//       FROM users
-//       LEFT JOIN shortLinks ON users.id = shortLinks.userId
-//       GROUP BY users.id
-//       ORDER BY visitCount DESC, linksCount DESC
-//       LIMIT 10
-//     `);
-//     res.json(users.rows);
-//   };
