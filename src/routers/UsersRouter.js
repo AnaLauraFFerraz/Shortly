@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authValidation } from "../middlewares/AuthMiddleware";
+import { authValidation } from "../middlewares/AuthMiddleware.js";
 import { getUrlsByUser } from "../middlewares/UserMiddleware.js";
 import { getUserData, getUsersRanking } from "../controllers/UsersControllers.js";
 
