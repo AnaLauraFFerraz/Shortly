@@ -1,4 +1,4 @@
-import db from "../config/database.js"
+import { db } from "../config/database.js"
 
 export async function getUserData(_, res) {
     const { userId } = res.locals.session

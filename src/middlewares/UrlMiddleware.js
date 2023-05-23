@@ -1,4 +1,4 @@
-import db from "../config/database.js"
+import { db } from "../config/database.js"
 
 export async function validateReturnUrl(req, res, next) {
   const { id } = req.params;
