@@ -37,29 +37,22 @@ export async function validateSignin(req, res, next) {
 export async function getUrlsByUser(req, res, next) {
   const { userId } = res.locals.session;
 
-  const urls = await db.query(`
-    SELECT
-    json_build_object(
-      'id', "shortLinks"."userId",
-      'name', users.name,
-      'visitCount', SUM("shortLinks"."visitCount"),
-      'shortenedUrls', json_agg(
-        json_build_object(
-          'id', "shortLinks".id,
-          'shortUrl', "shortLinks"."shortUrl",
-          'url', "shortLinks".url,
-          'visitCount', "shortLinks"."visitCount"
-        )
-      )
-    ) AS user
-    FROM "shortLinks"
-    JOIN users ON users.id = "shortLinks"."userId"
-    WHERE "shortLinks"."userId" = $1
-    GROUP BY "shortLinks"."userId"
-    ORDER BY SUM("shortLinks"."visitCount");`
-    , [userId]);
+  const { rows: urls } = await db.query(`
+            SELECT users.id, users.name, SUM("shortLinks"."visitCount") AS "visitCount", JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'id', "shortLinks".id,
+              'shortUrl', "shortLinks"."shortUrl",
+              'url', "shortLinks".url,
+              'visitCount', "shortLinks"."visitCount"
+            )) AS "shortenedUrls"
+            FROM users
+            JOIN "shortLinks" ON "shortLinks"."userId" = users.id
+            WHERE users.id = $1
+            GROUP BY users.id;`,
+            [userId],
+          );
 
-  res.locals.urls = urls.rows;
+  res.locals.urls = urls[0];
 
   next();
 }

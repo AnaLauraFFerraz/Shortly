@@ -1,24 +1,10 @@
 import { db } from "../config/database.js"
 
 export async function getUserData(_, res) {
-    const { userId } = res.locals.session
     try {
-        const { rows: urls } = await db.query(`
-            SELECT users.id, users.name, SUM("shortLinks"."visitCount") AS "visitCount", JSON_AGG(
-            JSON_BUILD_OBJECT(
-              'id', "shortLinks".id,
-              'shortUrl', "shortLinks"."shortUrl",
-              'url', "shortLinks".url,
-              'visitCount', "shortLinks"."visitCount"
-            )) AS "shortenedUrls"
-            FROM users
-            JOIN "shortLinks" ON "shortLinks"."userId" = users.id
-            WHERE users.id = $1
-            GROUP BY users.id;`,
-            [userId],
-          );
+        const result = res.locals.urls;
         
-        res.send(urls[0])
+        res.send(result)
     } catch (error) {
         res.status(500).send(error)
     }
