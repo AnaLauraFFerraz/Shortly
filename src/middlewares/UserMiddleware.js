@@ -6,7 +6,9 @@ export async function validateSignup(req, res, next) {
 
   try {
     const user = await db.query("SELECT * FROM users WHERE email = $1;", [email]);
-    if (user.rows[0]) return res.status(409).send({ message: "Email já cadastrado" });
+
+    if (user.rows.length > 0)
+      return res.status(409).send({ message: "Usuário já existe" });
 
     next();
   } catch (err) {
@@ -19,10 +21,10 @@ export async function validateSignin(req, res, next) {
 
   try {
     const { rows: user, rowCount: userExist } = await db.query("SELECT * FROM users WHERE email = $1;", [email]);
-    if (!userExist) return res.status(401).send({ message: "Os campos não estão corretos" });
+    if (!userExist) return res.status(401).send({ message: "Usuário ou senha incorretos" });
 
     const isPasswordCorrect = bcrypt.compareSync(password, user[0].password);
-    if (!isPasswordCorrect) return res.status(401).send({ message: "Os campos não estão corretos" });
+    if (!isPasswordCorrect) return res.status(401).send({ message: "Usuário ou senha incorretos" });
 
     res.locals.user = user;
 
@@ -53,9 +55,9 @@ export async function getUrlsByUser(req, res, next) {
     FROM "shortLinks"
     JOIN users ON users.id = "shortLinks"."userId"
     WHERE "shortLinks"."userId" = $1
-    GROUP BY "shortLinks"."userId", users.name
+    GROUP BY "shortLinks"."userId"
     ORDER BY SUM("shortLinks"."visitCount");`
-      , [userId]);
+    , [userId]);
 
   res.locals.urls = urls.rows;
 
